@@ -17,14 +17,27 @@ export default async function handler(req, res) {
 
   if (!user) return res.status(401).json({ message: 'User not found' })
 
-  await prisma.project.create({
-    data: {
-      name: req.body.name,
-      owner: {
-        connect: { id: user.id },
+  if (req.method === 'POST') {
+      await prisma.project.create({
+        data: {
+          name: req.body.name,
+          owner: {
+            connect: { id: user.id },
+          },
+        },
+      })
+  }
+  
+  if (req.method === 'DELETE') {
+    await prisma.project.deleteMany({
+      where: {
+        id: req.body.id,
+				owner: {
+          id: user.id,
+        },
       },
-    },
-  })
+    })
+  }
 
   res.end()
 }
